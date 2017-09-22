@@ -1,26 +1,26 @@
-var mongoose = require('mongoose');
+const express = require('express');
+const bodyParser = require('body-parser');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/TodoApp');
+var {mongoose} = require('./db/mongoose');
+var {Todo} = require('./models/todo');
+var {User} = require('./models/user');
 
-var Todo = mongoose.model('Todo', {
-    text: {
-        type: String
-    },
-    completed: {
-        type: Boolean
-    },
-    completedAt:{
-        type: Number
-    }
+var app = express();
+
+app.use(bodyParser.json());
+
+app.post('/todos', (req, res) =>{    
+    var todo = new Todo({
+        text: req.body.text
+    });
+
+    todo.save().then((doc) => {
+        res.send(doc);
+    }, (e) =>{
+        res.status(400).send(e);
+    });
 });
 
-var newTodo = new Todo({
-    text: 'Cook'
-});
-
-newTodo.save().then((doc) =>{
-    console.log('salvou: ', doc);
-}, (e) =>{
-    console.log('erro!!', e);
+app.listen(3000, () => {
+    console.log('Server on!');
 });
